@@ -1,90 +1,90 @@
-let async = require("async");
+const async = require('async');
 
 module.exports = (app, passport, auth) => {
-  const users = require("../app/controllers/users");
-  app.get("/login", users.login);
-  app.get("/signup", users.signup);
-  app.get("/logout", users.logout);
-  app.post("/users", users.create);
-  app.get("/userslist", users.list);
+  const users = require('../app/controllers/users');
+  app.get('/login', users.login);
+  app.get('/signup', users.signup);
+  app.get('/logout', users.logout);
+  app.post('/users', users.create);
+  app.get('/userslist', users.list);
   app.post(
-    "/users/sessions",
-    passport.authenticate("local", {
-      failureRedirect: "/login",
-      failureFlash: "Invalid email or password"
+    '/users/sessions',
+    passport.authenticate('local', {
+      failureRedirect: '/login',
+      failureFlash: 'Invalid email or password',
     }),
-    users.session
+    users.session,
   );
-  app.get("/users/:userId", users.show);
-  app.get("/users/:userId/followers", users.showFollowers);
-  app.get("/users/:userId/following", users.showFollowing);
+  app.get('/users/:userId', users.show);
+  app.get('/users/:userId/followers', users.showFollowers);
+  app.get('/users/:userId/following', users.showFollowing);
 
   app.get(
-    "/auth/github",
-    passport.authenticate("github", { failureRedirect: "/login" }),
-    users.signin
+    '/auth/github',
+    passport.authenticate('github', { failureRedirect: '/login' }),
+    users.signin,
   );
   app.get(
-    "/auth/github/callback",
-    passport.authenticate("github", { failureRedirect: "/login" }),
-    users.authCallback
+    '/auth/github/callback',
+    passport.authenticate('github', { failureRedirect: '/login' }),
+    users.authCallback,
   );
 
   /**
    * API related code
    */
-  const apiv1 = require("../app/controllers/apiv1");
-  app.get("/apiv1/tweets", apiv1.tweetList);
-  app.get("/apiv1/users", apiv1.usersList);
+  const apiv1 = require('../app/controllers/apiv1');
+  app.get('/apiv1/tweets', apiv1.tweetList);
+  app.get('/apiv1/users', apiv1.usersList);
 
   /**
   * Analytics related code
   */
-  const analytics = require("../app/controllers/analytics");
-  app.get("/analytics", analytics.index);
+  const analytics = require('../app/controllers/analytics');
+  app.get('/analytics', analytics.index);
 
-  app.param("userId", users.user);
+  app.param('userId', users.user);
 
-  //tweets routes
-  const tweets = require("../app/controllers/tweets");
-  app.get("/tweets", tweets.index);
-  app.post("/tweets", auth.requiresLogin, tweets.create);
-  app.get("/tweets/:id", tweets.show);
+  // tweets routes
+  const tweets = require('../app/controllers/tweets');
+  app.get('/tweets', tweets.index);
+  app.post('/tweets', auth.requiresLogin, tweets.create);
+  app.get('/tweets/:id', tweets.show);
   app.post(
-    "/tweets/:id",
+    '/tweets/:id',
     auth.requiresLogin,
     auth.tweet.hasAuthorization,
-    tweets.update
+    tweets.update,
   );
   app.del(
-    "/tweets/:id",
+    '/tweets/:id',
     auth.requiresLogin,
     auth.tweet.hasAuthorization,
-    tweets.destroy
+    tweets.destroy,
   );
-  app.param("id", tweets.tweet);
+  app.param('id', tweets.tweet);
 
-  //home route
-  app.get("/", auth.requiresLogin, tweets.index);
+  // home route
+  app.get('/', auth.requiresLogin, tweets.index);
 
-  //comment routes
-  const comments = require("../app/controllers/comments");
-  app.post("/tweets/:id/comments", auth.requiresLogin, comments.create);
-  app.get("/tweets/:id/comments", auth.requiresLogin, comments.create);
-  app.del("/tweets/:id/comments", auth.requiresLogin, comments.destroy);
+  // comment routes
+  const comments = require('../app/controllers/comments');
+  app.post('/tweets/:id/comments', auth.requiresLogin, comments.create);
+  app.get('/tweets/:id/comments', auth.requiresLogin, comments.create);
+  app.del('/tweets/:id/comments', auth.requiresLogin, comments.destroy);
 
   /**
    * Favorite routes
    */
-  const favorites = require("../app/controllers/favorites");
+  const favorites = require('../app/controllers/favorites');
 
-  app.post("/tweets/:id/favorites", auth.requiresLogin, favorites.create);
-  app.del("/tweets/:id/favorites", auth.requiresLogin, favorites.destroy);
+  app.post('/tweets/:id/favorites', auth.requiresLogin, favorites.create);
+  app.del('/tweets/:id/favorites', auth.requiresLogin, favorites.destroy);
 
   /**
     * Follow
     */
-  const follows = require("../app/controllers/follows");
+  const follows = require('../app/controllers/follows');
 
-  app.post("/users/:userId/follow", auth.requiresLogin, follows.follow);
+  app.post('/users/:userId/follow', auth.requiresLogin, follows.follow);
 };
