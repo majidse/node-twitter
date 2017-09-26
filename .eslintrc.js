@@ -1,3 +1,7 @@
 module.exports = {
-    "extends": "airbnb-base"
+    "extends": "airbnb-base",
+    "rules": {
+      "prefer-destructuring": 0,
+      "no-underscore-dangle": 0,
+    }
 };
