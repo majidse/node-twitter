@@ -1,23 +1,24 @@
 // ## Tweet Controller
-const mongoose = require("mongoose");
-const Tweet = mongoose.model("Tweet");
-const Analytics = mongoose.model("Analytics");
-const _ = require("underscore");
+const mongoose = require('mongoose');
+
+const Tweet = mongoose.model('Tweet');
+const Analytics = mongoose.model('Analytics');
+const _ = require('underscore');
 
 function logAnalytics(req) {
-  const url = req.protocol + "://" + req.get("host") + req.originalUrl;
+  const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
   if (req.ip !== undefined) {
-    const crudeIpArray = req.ip.split(":");
+    const crudeIpArray = req.ip.split(':');
     const ipArrayLength = crudeIpArray.length;
     // cleanup IP to remove unwanted characters
     const cleanIp = crudeIpArray[ipArrayLength - 1];
-    if (req.get("host").split(":")[0] !== "localhost") {
+    if (req.get('host').split(':')[0] !== 'localhost') {
       const analytics = new Analytics({
         ip: cleanIp,
         user: req.user,
-        url: url
+        url,
       });
-      analytics.save(err => {
+      analytics.save((err) => {
         if (err) {
           console.log(err);
         }
@@ -33,7 +34,7 @@ exports.tweet = (req, res, next, id) => {
       return next(err);
     }
     if (!tweet) {
-      return next(new Error("Failed to load tweet" + id));
+      return next(new Error(`Failed to load tweet${id}`));
     }
     req.tweet = tweet;
     next();
@@ -45,11 +46,11 @@ exports.create = (req, res) => {
   logAnalytics(req);
   const tweet = new Tweet(req.body);
   tweet.user = req.user;
-  tweet.uploadAndSave({}, err => {
+  tweet.uploadAndSave({}, (err) => {
     if (err) {
-      res.render("500");
+      res.render('500');
     } else {
-      res.redirect("/");
+      res.redirect('/');
     }
   });
 };
@@ -57,9 +58,9 @@ exports.create = (req, res) => {
 // ### Show Tweet
 exports.show = (req, res) => {
   logAnalytics(req);
-  res.render("tweets/show", {
+  res.render('tweets/show', {
     title: req.tweet.title,
-    tweet: req.tweet
+    tweet: req.tweet,
   });
 };
 
@@ -67,12 +68,12 @@ exports.show = (req, res) => {
 exports.update = (req, res) => {
   logAnalytics(req);
   let tweet = req.tweet;
-  tweet = _.extend(tweet, {"body": req.body.tweet});
+  tweet = _.extend(tweet, { body: req.body.tweet });
   tweet.uploadAndSave({}, (err) => {
     if (err) {
-      return res.render("500");
+      return res.render('500');
     }
-    res.redirect("/");
+    res.redirect('/');
   });
 };
 
@@ -80,47 +81,49 @@ exports.update = (req, res) => {
 exports.destroy = (req, res) => {
   logAnalytics(req);
   const tweet = req.tweet;
-  tweet.remove(err => {
+  tweet.remove((err) => {
     if (err) {
-      return res.render("500");
+      return res.render('500');
     }
-    res.redirect("/");
+    res.redirect('/');
   });
 };
 
 exports.index = (req, res) => {
   logAnalytics(req);
-  const page = (req.param("page") > 0 ? req.param("page") : 1) - 1;
+  const page = (req.param('page') > 0 ? req.param('page') : 1) - 1;
   const options = {
     perPage: 10,
-    page: page
+    page,
   };
-  let followingCount = req.user.following.length;
-  let followerCount = req.user.followers.length;
-  let tweets, tweetCount, analytics;
+  const followingCount = req.user.following.length;
+  const followerCount = req.user.followers.length;
+  let tweets,
+    tweetCount,
+    analytics;
   Tweet.list(options)
-    .then(result => {
+    .then((result) => {
       tweets = result;
-      return Tweet.countUserTweets(req.user._id)
+      return Tweet.countUserTweets(req.user._id);
     })
-    .then(result => {
+    .then((result) => {
       tweetCount = result;
-      return Analytics.list({ perPage: 15 })
+      return Analytics.list({ perPage: 15 });
     })
-    .then(result => {
+    .then((result) => {
       analytics = result;
-      res.render("tweets/index", {
-        title: "List of Tweets",
-        tweets: tweets,
-        analytics: analytics,
+      res.render('tweets/index', {
+        title: 'List of Tweets',
+        tweets,
+        analytics,
         page: page + 1,
-        tweetCount: tweetCount,
-        followerCount: followerCount,
-        followingCount: followingCount
+        tweetCount,
+        followerCount,
+        followingCount,
       });
     })
-    .catch(error => {
+    .catch((error) => {
       console.log(error);
-      res.render("500");
-    })
-}
+      res.render('500');
+    });
+};

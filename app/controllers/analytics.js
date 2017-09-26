@@ -1,63 +1,67 @@
-const mongoose = require("mongoose");
-const Analytics = mongoose.model("Analytics");
-const Tweet = mongoose.model("Tweet");
-const qs = require('querystring')
-const url = require('url')
+const mongoose = require('mongoose');
+
+const Analytics = mongoose.model('Analytics');
+const Tweet = mongoose.model('Tweet');
+const qs = require('querystring');
+const url = require('url');
 
 exports.index = (req, res) => {
-  const page = (req.param("page") > 0 ? req.param("page") : 1) - 1;
+  const page = (req.param('page') > 0 ? req.param('page') : 1) - 1;
   const perPage = 10;
   const options = {
-    perPage: perPage,
-    page: page
+    perPage,
+    page,
   };
 
-  let analytics, pageViews, tweetCount, pagination;
+  let analytics,
+    pageViews,
+    tweetCount,
+    pagination;
 
   Analytics.list(options)
-    .then(result => {
+    .then((result) => {
       analytics = result;
       return Analytics.count();
     })
-    .then(result => {
+    .then((result) => {
       pageViews = result;
-      pagination = createPagination(req, Math.ceil(pageViews / perPage), page+1)
-      return Tweet.countTotalTweets()
+      pagination = createPagination(req, Math.ceil(pageViews / perPage), page + 1);
+      return Tweet.countTotalTweets();
     })
-    .then(result => {
+    .then((result) => {
       tweetCount = result;
-      res.render("analytics/analytics", {
-        title: "List of users",
-        analytics: analytics,
-        pageViews: pageViews,
-        tweetCount: tweetCount,
-        pagination: pagination,
-        pages: Math.ceil(pageViews / perPage)
+      res.render('analytics/analytics', {
+        title: 'List of users',
+        analytics,
+        pageViews,
+        tweetCount,
+        pagination,
+        pages: Math.ceil(pageViews / perPage),
       });
     })
-    .catch(error => {
+    .catch((error) => {
       console.log(error);
-      return res.render("500");
+      return res.render('500');
     });
 };
 
-function createPagination (req, pages, page) {
-  let params = qs.parse(url.parse(req.url).query);
+function createPagination(req, pages, page) {
+  const params = qs.parse(url.parse(req.url).query);
   let str = '';
   let pageNumberClass;
   let pageCutLow = page - 1;
   let pageCutHigh = page + 1;
   // Show the Previous button only if you are on a page other than the first
   if (page > 1) {
-    str += '<li class="no"><a href="?page='+(page-1)+'">Previous</a></li>';
+    str += `<li class="no"><a href="?page=${page - 1}">Previous</a></li>`;
   }
   // Show all the pagination elements if there are less than 6 pages total
   if (pages < 6) {
     for (let p = 1; p <= pages; p++) {
       params.page = p;
-      pageNumberClass = page == p ? "active" : "no";
-      let href = '?' + qs.stringify(params);
-      str += '<li class="'+pageNumberClass+'"><a href="'+ href +'">'+ p +'</a></li>';
+      pageNumberClass = page == p ? 'active' : 'no';
+      const href = `?${qs.stringify(params)}`;
+      str += `<li class="${pageNumberClass}"><a href="${href}">${p}</a></li>`;
     }
   }
   // Use "..." to collapse pages outside of a certain range
@@ -67,7 +71,7 @@ function createPagination (req, pages, page) {
     if (page > 2) {
       str += '<li class="no"><a href="?page=1">1</a></li>';
       if (page > 3) {
-          str += '<li class="out-of-range">...</li>';
+        str += '<li class="out-of-range">...</li>';
       }
     }
     // Determine how many pages to show after the current page index
@@ -79,7 +83,7 @@ function createPagination (req, pages, page) {
     // Determine how many pages to show before the current page index
     if (page === pages) {
       pageCutLow -= 2;
-    } else if (page === pages-1) {
+    } else if (page === pages - 1) {
       pageCutLow -= 1;
     }
     // Output the indexes for pages that fall inside the range of pageCutLow
@@ -89,25 +93,25 @@ function createPagination (req, pages, page) {
         p += 1;
       }
       if (p > pages) {
-        continue
+        continue;
       }
       params.page = p;
-      pageNumberClass = page == p ? "active" : "no";
-      let href = '?' + qs.stringify(params);
-      str += '<li class="'+pageNumberClass+'"><a href="'+ href +'">'+ p +'</a></li>';
+      pageNumberClass = page == p ? 'active' : 'no';
+      const href = `?${qs.stringify(params)}`;
+      str += `<li class="${pageNumberClass}"><a href="${href}">${p}</a></li>`;
     }
     // Show the very last page preceded by a "..." at the end of the pagination
     // section (before the Next button)
-    if (page < pages-1) {
-      if (page < pages-2) {
+    if (page < pages - 1) {
+      if (page < pages - 2) {
         str += '<li class="out-of-range">...</li>';
       }
-      str += '<li class="no"><a href="?page='+pages+'">'+pages+'</a></li>';
+      str += `<li class="no"><a href="?page=${pages}">${pages}</a></li>`;
     }
   }
   // Show the Next button only if you are on a page other than the last
   if (page < pages) {
-    str += '<li class="no"><a href="?page='+(page+1)+'">Next</a></li>';
+    str += `<li class="no"><a href="?page=${page + 1}">Next</a></li>`;
   }
   // Return the pagination string to be outputted in the pug templates
   return str;

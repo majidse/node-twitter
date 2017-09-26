@@ -1,8 +1,8 @@
-const utils = require("../../lib/utils");
+const utils = require('../../lib/utils');
 
 exports.load = (req, res, next, id) => {
   const tweet = req.tweet;
-  utils.findByParam(tweet.comments, { id: id }, (err, comment) => {
+  utils.findByParam(tweet.comments, { id }, (err, comment) => {
     if (err) {
       return next(err);
     }
@@ -17,13 +17,13 @@ exports.create = (req, res) => {
   const user = req.user;
 
   if (!req.body.body) {
-    return res.redirect("/");
+    return res.redirect('/');
   }
-  tweet.addComment(user, req.body, err => {
+  tweet.addComment(user, req.body, (err) => {
     if (err) {
-      return res.render("500");
+      return res.render('500');
     }
-    res.redirect("/");
+    res.redirect('/');
   });
 };
 
@@ -31,7 +31,7 @@ exports.create = (req, res) => {
 exports.destroy = (req, res) => {
   // delete a comment here.
   const comment = req.comment;
-  comment.remove(err => {
+  comment.remove((err) => {
     if (err) {
       res.send(400);
     }
