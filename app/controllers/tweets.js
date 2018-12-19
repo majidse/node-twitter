@@ -63,38 +63,76 @@ exports.index = (req, res) => {
     perPage: perPage,
     page: page
   };
-  let followingCount = req.user.following.length;
-  let followerCount = req.user.followers.length;
-  let tweets, tweetCount, pageViews, analytics, pagination;
-  User.countUserTweets(req.user._id).then(result => {
-    tweetCount = result;
-  });
-  Tweet.list(options)
-    .then(result => {
-      tweets = result;
-      return Tweet.countTotalTweets();
-    })
-    .then(result => {
-      pageViews = result;
-      pagination = createPagination(req, Math.ceil(pageViews/ perPage),  page+1);
-      return Analytics.list({ perPage: 15 });
-    })
-    .then(result => {
-      analytics = result;
-      res.render('pages/index', {
-        title: 'List of Tweets',
-        tweets: tweets,
-        analytics: analytics,
-        page: page + 1,
-        tweetCount: tweetCount,
-        pagination: pagination,
-        followerCount: followerCount,
-        followingCount: followingCount,
-        pages: Math.ceil(pageViews / perPage),
-      });
-    })
-    .catch(error => {
-      logger.error(error);
-      res.render('pages/500');
+  if (req.isAuthenticated()) {
+    let followingCount = req.user.following.length;
+    let followerCount = req.user.followers.length;
+    let tweets, tweetCount, pageViews, analytics, pagination;
+    User.countUserTweets(req.user._id).then(result => {
+      tweetCount = result;
     });
+    Tweet.list(options)
+      .then(result => {
+        tweets = result;
+        return Tweet.countTotalTweets();
+      })
+      .then(result => {
+        pageViews = result;
+        pagination = createPagination(req, Math.ceil(pageViews/ perPage),  page+1);
+        return Analytics.list({ perPage: 15 });
+      })
+      .then(result => {
+        analytics = result;
+        res.render('pages/index', {
+          title: 'List of Tweets',
+          tweets: tweets,
+          analytics: analytics,
+          page: page + 1,
+          tweetCount: tweetCount,
+          pagination: pagination,
+          followerCount: followerCount,
+          followingCount: followingCount,
+          pages: Math.ceil(pageViews / perPage),
+        });
+      })
+      .catch(error => {
+        logger.error(error);
+        res.render('pages/500');
+      });
+  }else{
+    let followingCount = 0;
+    let followerCount = 0;
+    let tweets, tweetCount, pageViews, analytics, pagination;
+   
+    tweetCount = 0;
+    
+    Tweet.list(options)
+      .then(result => {
+        tweets = result;
+        return Tweet.countTotalTweets();
+      })
+      .then(result => {
+        pageViews = result;
+        pagination = createPagination(req, Math.ceil(pageViews/ perPage),  page+1);
+        return Analytics.list({ perPage: 15 });
+      })
+      .then(result => {
+        analytics = result;
+        res.render('pages/index', {
+          title: 'List of Tweets',
+          tweets: tweets,
+          analytics: analytics,
+          page: page + 1,
+          tweetCount: tweetCount,
+          pagination: pagination,
+          followerCount: followerCount,
+          followingCount: followingCount,
+          pages: Math.ceil(pageViews / perPage),
+        });
+      })
+      .catch(error => {
+        logger.error(error);
+        res.render('pages/500');
+      });
+  }
+  
 };
