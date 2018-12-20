@@ -30,7 +30,7 @@
 
 .tweet__content {
   margin: 5px 0 10px;
-  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .tweet__form {
