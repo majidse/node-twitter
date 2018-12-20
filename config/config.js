@@ -37,9 +37,9 @@ module.exports = {
       name: "Nodejs Express Mongoose Demo"
     },
     github: {
-      clientID: "74f195e6e96fae2d851e",
-      clientSecret: "3d6bada3559a457765984570cc1ea379e2552c66",
-      callbackURL: "https://nodetwitter1.herokuapp.com/auth/github/callback"
+      clientID: "6e27a1f7305a5fcfdb23",
+      clientSecret: "b1f918fc2a84e427de21cbcb87da060e5e0a240c",
+      callbackURL: "https://bash-twits.herokuapp.com/auth/github/callback"
     }
   }
 };
