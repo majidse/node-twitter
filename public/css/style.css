@@ -217,7 +217,7 @@ pre code {
 
 .tweet__content {
   margin: 5px 0 10px;
-  word-wrap:  pre-wrap; }
+  white-space: pre-wrap; }
 
 .tweet__form .tweet__edit {
   background-color: #2AAF81; }
