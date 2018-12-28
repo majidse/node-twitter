@@ -6,5 +6,6 @@
         h4.modal-title Compose new Tweet
       .modal-body
         form(method='post', action='/tweets')
-          textarea(type='text', name='body', placeholder='Enter your tweet here', maxlength='280')
+          textarea(type='text', name='body', placeholder='Enter your tweet here', maxlength='1000')
+          input(type='file' name="photo")
           button.btn.new-tweet__button(type='submit') Tweet
