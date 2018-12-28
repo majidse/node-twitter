@@ -11,6 +11,8 @@ const setTags = tags => tags.split(",");
 const TweetSchema = new Schema({
   body: { type: String, default: "", trim: true, maxlength: 280},
   user: { type: Schema.ObjectId, ref: "User" },
+  img: { data: Buffer, contentType: String },
+ 
   comments: [
     {
       body: { type: String, default: "", maxlength: 280},
